@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QDialog, QFormLayout, QLineEdit, QDateEdit, QVBoxLay
 from PyQt5.QtCore import QDate
 from database import get_film_by_id, update_film
 
-
 class EditFilmDialog(QDialog):
     def __init__(self, film_id, parent=None):
         super(EditFilmDialog, self).__init__(parent)
@@ -13,11 +12,15 @@ class EditFilmDialog(QDialog):
         self.layout = QVBoxLayout(self)
         self.form_layout = QFormLayout()
 
-        self.nom_film_input = QLineEdit(self)
+        self.titre_film_input = QLineEdit(self)
+        self.description_film_input = QLineEdit(self)
+        self.duree_film_input = QLineEdit(self)
         self.date_film_input = QDateEdit(self)
         self.date_film_input.setCalendarPopup(True)
 
-        self.form_layout.addRow("Nom du film:", self.nom_film_input)
+        self.form_layout.addRow("Titre du film:", self.titre_film_input)
+        self.form_layout.addRow("Description:", self.description_film_input)
+        self.form_layout.addRow("Durée (minutes):", self.duree_film_input)
         self.form_layout.addRow("Date de sortie:", self.date_film_input)
 
         self.layout.addLayout(self.form_layout)
@@ -40,13 +43,17 @@ class EditFilmDialog(QDialog):
     def load_film_details(self):
         film = get_film_by_id(self.film_id)
         if film:
-            self.nom_film_input.setText(film['Nom'])
+            self.titre_film_input.setText(film['Titre'])
+            self.description_film_input.setText(film['Description'])
+            self.duree_film_input.setText(str(film['Durée']))
             # Assurez-vous que la date est au format attendu (YYYY-MM-DD)
-            date_film = QDate.fromString(film['Date'], "yyyy-MM-dd")
+            date_film = QDate.fromString(film['DateSortie'], "yyyy-MM-dd")
             self.date_film_input.setDate(date_film)
 
     def save_changes(self):
-        nom = self.nom_film_input.text()
-        date = self.date_film_input.date().toString("yyyy-MM-dd")
-        update_film(self.film_id, nom, date)
+        titre = self.titre_film_input.text()
+        description = self.description_film_input.text()
+        duree = self.duree_film_input.text()
+        date_sortie = self.date_film_input.date().toString("yyyy-MM-dd")
+        update_film(self.film_id, titre, description, duree, date_sortie)
         self.accept()

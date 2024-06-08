@@ -1,9 +1,8 @@
-# main.py
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget
 from film_tab import FilmTab
 from reservation_tab import ReservationTab
 from cinema_salle_tab import CinemaSalleTab
-
+from seance_tab import SeanceTab
 
 class CinemaApp(QMainWindow):
     def __init__(self):
@@ -19,7 +18,7 @@ class CinemaApp(QMainWindow):
         self.table_widget.addTab(FilmTab(), "Films")
         self.table_widget.addTab(ReservationTab(), "Réservations")
         self.table_widget.addTab(CinemaSalleTab(), "Cinémas et Salles")
-
+        self.table_widget.addTab(SeanceTab(), "Séances")
 
 if __name__ == "__main__":
     app = QApplication([])

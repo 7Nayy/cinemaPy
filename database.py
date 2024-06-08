@@ -1,4 +1,3 @@
-# database.py
 import pymysql
 
 def connect_to_database():
@@ -19,12 +18,22 @@ def fetch_all_films():
     finally:
         conn.close()
 
-def add_film(nom, date):
+def get_film_by_id(film_id):
     conn = connect_to_database()
     try:
         with conn.cursor() as cursor:
-            sql = "INSERT INTO Film (Nom, Date) VALUES (%s, %s)"
-            cursor.execute(sql, (nom, date))
+            sql = "SELECT * FROM Film WHERE Id = %s"
+            cursor.execute(sql, (film_id,))
+            return cursor.fetchone()
+    finally:
+        conn.close()
+
+def add_film(titre, description, duree, date_sortie):
+    conn = connect_to_database()
+    try:
+        with conn.cursor() as cursor:
+            sql = "INSERT INTO Film (Titre, Description, Durée, DateSortie) VALUES (%s, %s, %s, %s)"
+            cursor.execute(sql, (titre, description, duree, date_sortie))
         conn.commit()
     finally:
         conn.close()
@@ -34,22 +43,24 @@ def fetch_all_reservations():
     try:
         with conn.cursor() as cursor:
             sql = """
-            SELECT Reserver.UtilisateurId, Utilisateur.Nom AS Utilisateur, Film.Nom AS Film, Reserver.FilmId
-            FROM Reserver
-            JOIN Utilisateur ON Reserver.UtilisateurId = Utilisateur.Id
-            JOIN Film ON Reserver.FilmId = Film.Id
+            SELECT Reservation.Id, Reservation.UtilisateurId, Reservation.SeanceId, Reservation.NbPlaces, 
+                   Reservation.ReservationNumber, Film.Titre AS Film, Utilisateur.Nom AS Utilisateur
+            FROM Reservation
+            JOIN Film ON Reservation.SeanceId = Film.Id
+            JOIN Utilisateur ON Reservation.UtilisateurId = Utilisateur.Id
             """
             cursor.execute(sql)
             return cursor.fetchall()
     finally:
         conn.close()
 
-def add_reservation(utilisateur_id, film_id):
+
+def add_reservation(utilisateur_id, seance_id, nb_places, reservation_number):
     conn = connect_to_database()
     try:
         with conn.cursor() as cursor:
-            sql = "INSERT INTO Reserver (UtilisateurId, FilmId) VALUES (%s, %s)"
-            cursor.execute(sql, (utilisateur_id, film_id))
+            sql = "INSERT INTO Reservation (UtilisateurId, SeanceId, NbPlaces, ReservationNumber) VALUES (%s, %s, %s, %s)"
+            cursor.execute(sql, (utilisateur_id, seance_id, nb_places, reservation_number))
         conn.commit()
     finally:
         conn.close()
@@ -64,33 +75,37 @@ def fetch_all_users():
     finally:
         conn.close()
 
-def update_film(film_id, nom, date):
+def update_film(film_id, titre, description, duree, date_sortie):
     conn = connect_to_database()
     try:
         with conn.cursor() as cursor:
-            sql = "UPDATE Film SET Nom = %s, Date = %s WHERE Id = %s"
-            cursor.execute(sql, (nom, date, film_id))
+            sql = "UPDATE Film SET Titre = %s, Description = %s, Durée = %s, DateSortie = %s WHERE Id = %s"
+            cursor.execute(sql, (titre, description, duree, date_sortie, film_id))
         conn.commit()
     finally:
         conn.close()
 
-def delete_film(film_id):
+def fetch_all_seances():
     conn = connect_to_database()
     try:
         with conn.cursor() as cursor:
-            sql = "DELETE FROM Film WHERE Id = %s"
-            cursor.execute(sql, (film_id,))
+            sql = """
+            SELECT Seance.Id, Seance.DateTimeSeance, Film.Titre AS Film, Salle.Numero AS Salle
+            FROM Seance
+            JOIN Film ON Seance.FilmId = Film.Id
+            JOIN Salle ON Seance.SalleId = Salle.Id
+            """
+            cursor.execute(sql)
+            return cursor.fetchall()
+    finally:
+        conn.close()
+
+def add_seance(film_id, date_heure, salle_id):
+    conn = connect_to_database()
+    try:
+        with conn.cursor() as cursor:
+            sql = "INSERT INTO Seance (FilmId, DateTimeSeance, SalleId) VALUES (%s, %s, %s)"
+            cursor.execute(sql, (film_id, date_heure, salle_id))
         conn.commit()
     finally:
         conn.close()
-
-def get_film_by_id(film_id):
-    conn = connect_to_database()
-    try:
-        with conn.cursor() as cursor:
-            sql = "SELECT * FROM Film WHERE Id = %s"
-            cursor.execute(sql, (film_id,))
-            return cursor.fetchone()  # Retourne un seul enregistrement
-    finally:
-        conn.close()
-

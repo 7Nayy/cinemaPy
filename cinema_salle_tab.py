@@ -1,7 +1,5 @@
-# cinema_salle_tab.py
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
 from database import connect_to_database
-
 
 class CinemaSalleTab(QWidget):
     def __init__(self):
@@ -21,6 +19,6 @@ class CinemaSalleTab(QWidget):
 
                 for cinema in cinemas:
                     layout.addWidget(
-                        QLabel(f"Nom: {cinema['Nom']}, Adresse: {cinema['Adresse']}, NbSalle: {cinema['NbSalle']}"))
+                        QLabel(f"Nom: {cinema['Nom']}, Adresse: {cinema['Adresse']}"))
         finally:
             conn.close()
