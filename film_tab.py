@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QFormLayout, QDateEdit, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QFormLayout, QDateEdit, QDialog, QMessageBox, QTableWidget, QTableWidgetItem
 from PyQt5.QtCore import QDate
 from database import fetch_all_films, add_film
 from edit_film_dialog import EditFilmDialog
@@ -43,7 +43,7 @@ class FilmTab(QWidget):
             self.films_table.insertRow(row_position)
 
             self.films_table.setItem(row_position, 0, QTableWidgetItem(film['Titre']))
-            self.films_table.setItem(row_position, 1, QTableWidgetItem(film['Description']))
+            self.films_table.setItem(row_position, 1, QTableWidgetItem(film.get('Description', '')))
             self.films_table.setItem(row_position, 2, QTableWidgetItem(str(film['Durée'])))
             self.films_table.setItem(row_position, 3, QTableWidgetItem(film['DateSortie'].strftime('%Y-%m-%d')))
 
@@ -57,6 +57,11 @@ class FilmTab(QWidget):
         description = self.description_film_input.text()
         duree = self.duree_film_input.text()
         date_sortie = self.date_film_input.date().toString("yyyy-MM-dd")
+
+        if not titre or not description or not duree or not date_sortie:
+            QMessageBox.warning(self, "Champs vides", "Tous les champs doivent être remplis.")
+            return
+
         add_film(titre, description, duree, date_sortie)
         self.titre_film_input.clear()
         self.description_film_input.clear()
